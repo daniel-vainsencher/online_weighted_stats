@@ -4,4 +4,4 @@ version = "0.1.0"
 authors = ["Daniel Vainsencher <daniel.vainsencher@gmail.com"]
 
 [dependencies]
-ndarray = { git = "https://github.com/daniel-vainsencher/rust-ndarray.git" }
+ndarray = "0.3"
