@@ -1,0 +1,7 @@
+[package]
+name = "online_weighted_stats2"
+version = "0.1.0"
+authors = ["Daniel Vainsencher <daniel.vainsencher@gmail.com"]
+
+[dependencies]
+ndarray = { git = "https://github.com/daniel-vainsencher/rust-ndarray.git" }
