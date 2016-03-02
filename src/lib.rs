@@ -27,7 +27,7 @@ impl OnlineStats {
     pub fn next_value(&mut self, data : &V, weight : f64) {
         let temp = weight + self.sum_of_weights;
         // nice
-        let delta = data - &self.mean;
+        let delta = &*data - &self.mean;
         let r = &delta * (weight / temp); // Interoperation with scalars works nicely.
 
         self.mean.iadd(&r); // While I don't like this style, is efficient and will be += when rust supports it so fine.
@@ -53,9 +53,9 @@ use ndarray::arr1;
 
 #[test]
 fn weighted_stats17(){
-    let const_vec = arr1(&[1., 3., 4.]);
-    let const_vec2 = arr1(&[1., 1.5, 1.]);
-    let const_vec3 = arr1(&[0., 2., 4.]);
+    let const_vec = arr1(&[1., 3., 4.]).to_owned();
+    let const_vec2 = arr1(&[1., 1.5, 1.]).to_owned();
+    let const_vec3 = arr1(&[0., 2., 4.]).to_owned();
     let mut s = OnlineStats::new(3);
     s.next_value(&const_vec, 1.);
     let (m1, _) = s.mean_and_variance();
