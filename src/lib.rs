@@ -43,12 +43,13 @@ impl OnlineStats {
         };
     }
 
+    fn nans(&self) -> V {V::from_elem(self.mean.dim(), f64::NAN)}
+
     pub fn mean_and_variance(&self) -> (V, V) {
-        //let var = if self.n > 1 {self.M2 / self.sumOfWeights * self.n / (self.n - 1) } else {Float::inf};
-        let nans = V::from_elem(self.mean.dim(), f64::NAN);
+        // With no data, there is no mean. With only one vector, there is no variance.
         match self.state {
-            State::Nothing => (nans.clone(), nans),
-            State::Mean => (self.mean.clone(), nans),
+            State::Nothing => (self.nans(), self.nans()),
+            State::Mean => (self.mean.clone(), self.nans()),
             State::Full => (self.mean.clone(), &self.m2 / self.sum_of_weights),
         }
     }
