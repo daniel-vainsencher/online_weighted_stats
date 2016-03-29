@@ -30,9 +30,9 @@ impl OnlineStats {
         let temp = weight + self.sum_of_weights;
         // nice
         let delta = data - &self.mean;
-        let r = &delta * (weight / temp); // Interoperation with scalars works nicely.
+        let r = &delta * (weight / temp);
 
-        self.mean.iadd(&r); // While I don't like this style, is efficient and will be += when rust supports it so fine.
+        self.mean.iadd(&r);
 
         self.m2.iadd(&(self.sum_of_weights * (r * &delta)));
         self.sum_of_weights = temp;
