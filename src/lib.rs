@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate ndarray;
 
+use std::f64;
+
 use ndarray::{
     OwnedArray,
     Ix,
@@ -42,8 +44,7 @@ impl OnlineStats {
         let var = if self.n > 1 {
             &self.m2 * ((self.n as f64) / (self.sum_of_weights * ((self.n - 1) as f64)))
         } else {
-            V::from_elem(self.m2.dim(), 1.)
-            // ones(self.m2.num_rows(), self.m2.num_cols()).map(|v| f64::INFINITY)
+            V::from_elem(self.m2.dim(), f64::INFINITY)
         };
         (self.mean.clone(), var)
     }
