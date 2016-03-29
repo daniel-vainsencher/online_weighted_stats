@@ -14,16 +14,18 @@ pub struct OnlineStats {
     sum_of_weights : f64,
     mean : V,
     m2 : V,
-    n : u64
+    state : State
 }
 
+
+enum State {Nothing, Mean, Full}
 impl OnlineStats {
     pub fn new(width: usize) -> OnlineStats {
         OnlineStats {
             sum_of_weights: 0.,
             mean: V::zeros(width),
             m2:   V::zeros(width),
-            n: 0 }
+            state: State::Nothing }
     }
 
     pub fn next_value(&mut self, data : &V, weight : f64) {
@@ -35,17 +37,20 @@ impl OnlineStats {
 
         self.m2.iadd(&(self.sum_of_weights * (r * &delta)));
         self.sum_of_weights = temp;
-        self.n += 1;
+        self.state = match self.state {
+            State::Nothing => State::Mean,
+            _ => State::Full
+        };
     }
 
     pub fn mean_and_variance(&self) -> (V, V) {
         //let var = if self.n > 1 {self.M2 / self.sumOfWeights * self.n / (self.n - 1) } else {Float::inf};
-        let var = if self.n > 1 {
-            &self.m2 * ((self.n as f64) / (self.sum_of_weights * ((self.n - 1) as f64)))
-        } else {
-            V::from_elem(self.m2.dim(), f64::INFINITY)
-        };
-        (self.mean.clone(), var)
+        let nans = V::from_elem(self.mean.dim(), f64::NAN);
+        match self.state {
+            State::Nothing => (nans.clone(), nans),
+            State::Mean => (self.mean.clone(), nans),
+            State::Full => (self.mean.clone(), &self.m2 / self.sum_of_weights),
+        }
     }
 }
 
@@ -57,8 +62,13 @@ fn weighted_stats17(){
     let const_vec2 = arr1(&[1., 1.5, 1.]);
     let const_vec3 = arr1(&[0., 2., 4.]);
     let mut s = OnlineStats::new(3);
+    let (m0, v0) = s.mean_and_variance();
+    let nans = V::from_elem(const_vec.dim(), f64::NAN);
+    assert!(m0[0].is_nan());
+    assert!(v0[0].is_nan());
     s.next_value(&const_vec, 1.);
-    let (m1, _) = s.mean_and_variance();
+    let (m1, v1) = s.mean_and_variance();
+    assert!(v1[0].is_nan());
     assert_eq!(m1, const_vec);
     s.next_value(&const_vec2, 2.);
     let (m2, _) = s.mean_and_variance();
